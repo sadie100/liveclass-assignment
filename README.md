@@ -1,73 +1,22 @@
-# React + TypeScript + Vite
+## 프로젝트 개요
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 기술 스택
 
-Currently, two official plugins are available:
+| 영역       | 선택                     | 선택 이유                                                                                                             |
+| ---------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| 언어       | TypeScript               | 과제 필수 요건. 정적 타입으로 개발 안정성 향상 위함                                                                   |
+| 프레임워크 | React 19                 | 과제 권장 사항, 라이브러리 생태계 풍부함                                                                              |
+| 빌드 도구  | Vite                     | 간단한 셋업, 빠른 HMR 지원으로 개발 생산성 높음                                                                       |
+| 스타일링   | shadcn/ui + Tailwind CSS | 무거운 디자인 시스템 의존성 없이 컴포넌트 소스를 직접 소유(복사 방식)하므로 커스터마이즈가 자유로움. 접근성 기본 보장 |
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 실행 방법
 
-## React Compiler
+## 프로젝트 구조 설명
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 요구사항 해석 및 가정
 
-## Expanding the ESLint configuration
+## 설계 결정과 이유
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 미구현 / 제약사항
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## AI 활용 범위
