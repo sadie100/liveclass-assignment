@@ -1,7 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import CourseListPage from '@/pages/CourseList'
-import EnrollPage from '@/pages/Enroll'
-import EnrollDonePage from '@/pages/EnrollDone'
+import CourseListPage from '@/pages/courseList'
+import EnrollPage from '@/pages/enroll'
+import EnrollDonePage from '@/pages/enrollDone'
 
 export default function App() {
   return (
