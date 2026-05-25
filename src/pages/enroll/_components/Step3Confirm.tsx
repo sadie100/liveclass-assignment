@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Separator } from '@/components/ui/separator'
 import { CourseInfo } from './CourseInfo'
 import type { EnrollFormValues } from '../_schema'
-import { formatPhone } from '@/components/PhoneInput'
+import { formatPhone } from '@/lib/format'
 
 interface Step3ConfirmProps {
   onPrev: () => void
