@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import type { Course } from '@/types/course'
 import type { CategoryFilter } from '@/pages/courseList/_components/CategoryTabs'
+import { fetcher } from '@/lib/api'
 
 export interface CourseListResponse {
   courses: Course[]
@@ -11,11 +12,7 @@ async function fetchCourses(category: CategoryFilter): Promise<CourseListRespons
   const url =
     category === 'all' ? '/api/courses' : `/api/courses?category=${encodeURIComponent(category)}`
 
-  const res = await fetch(url)
-  if (!res.ok) {
-    throw new Error(`강의 목록을 불러오지 못했습니다 (${res.status})`)
-  }
-  return res.json()
+  return await fetcher<CourseListResponse>(url)
 }
 
 export const courseKeys = {
