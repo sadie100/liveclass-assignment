@@ -24,4 +24,6 @@ No test runner is configured yet.
 ## Conventions
 
 - TypeScript strict-ish flags on: `verbatimModuleSyntax`, `noUnusedLocals/Parameters`, `erasableSyntaxOnly`. Use `import type { … }` for type-only imports.
+- Domain enums and their derived constants (the const object, an `Object.values`-derived list, label maps) live together in `src/types/`. See `Category` / `CATEGORIES` / `CATEGORY_LABELS` in `src/types/course.ts` as the reference shape.
 - Commit messages follow Conventional Commits in Korean (e.g. `chore: tailwind + shadcn ui 세팅`).
+- **Server state**: prefer `useSuspenseQuery` + `<Suspense>` + `<ErrorBoundary>` (from `react-error-boundary`) over imperative `isPending`/`isError` branching. Place data-dependent UI inside the boundary; keep data-agnostic UI outside.
