@@ -26,3 +26,11 @@ export function useCoursesQuery(category: CategoryFilter) {
     queryFn: () => fetchCourses(category),
   })
 }
+
+export function useCourseQuery(courseId: string | undefined) {
+  return useSuspenseQuery({
+    queryKey: courseKeys.list('all'),
+    queryFn: () => fetchCourses('all'),
+    select: (data) => data.courses.find((c) => c.id === courseId) ?? null,
+  })
+}
