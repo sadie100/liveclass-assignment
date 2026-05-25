@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import type { Course } from '@/types/course'
 import type { CategoryFilter } from '@/pages/courseList/_components/CategoryTabs'
 import { fetcher } from '@/lib/api'
@@ -21,7 +21,7 @@ export const courseKeys = {
 }
 
 export function useCoursesQuery(category: CategoryFilter) {
-  return useQuery({
+  return useSuspenseQuery({
     queryKey: courseKeys.list(category),
     queryFn: () => fetchCourses(category),
   })

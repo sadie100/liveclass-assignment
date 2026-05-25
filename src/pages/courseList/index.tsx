@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { Suspense, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ErrorBoundary } from 'react-error-boundary'
 import { Stepper } from '@/components/Stepper'
 import { Button } from '@/components/ui/button'
 import { useCoursesQuery } from '@/queries/course'
@@ -12,27 +13,7 @@ import type { EnrollmentType } from '@/types/course'
 const STEPS = ['강의 선택', '정보 입력', '확인 및 제출']
 
 export default function CourseListPage() {
-  const navigate = useNavigate()
   const [category, setCategory] = useState<CategoryFilter>('all')
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [type, setType] = useState<EnrollmentType>('personal')
-  const { data, isPending, isError, error, refetch, isFetching } = useCoursesQuery(category)
-  const courses = data?.courses ?? []
-
-  const firstSelectableIndex = useMemo(
-    () =>
-      courses.findIndex(
-        (c) => getCapacityStatus(c.currentEnrollment, c.maxCapacity) !== 'sold-out',
-      ),
-    [courses],
-  )
-
-  const selectedCourse = courses.find((c) => c.id === selectedId) ?? null
-
-  function handleNext() {
-    if (!selectedCourse) return
-    navigate(`/enroll/${selectedCourse.id}`, { state: { type } })
-  }
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-12">
@@ -51,11 +32,45 @@ export default function CourseListPage() {
         <CategoryTabs value={category} onChange={setCategory} />
       </div>
 
-      {isPending ? (
-        <LoadingState />
-      ) : isError ? (
-        <ErrorState message={error.message} onRetry={() => refetch()} isRetrying={isFetching} />
-      ) : courses.length === 0 ? (
+      <ErrorBoundary
+        resetKeys={[category]}
+        fallbackRender={({ error, resetErrorBoundary }) => (
+          <ErrorState message={(error as Error).message} onRetry={resetErrorBoundary} />
+        )}
+      >
+        <Suspense fallback={<LoadingState />}>
+          <CourseSection category={category} />
+        </Suspense>
+      </ErrorBoundary>
+    </main>
+  )
+}
+
+function CourseSection({ category }: { category: CategoryFilter }) {
+  const navigate = useNavigate()
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [type, setType] = useState<EnrollmentType>('personal')
+  const { data } = useCoursesQuery(category)
+  const courses = data.courses
+
+  const firstSelectableIndex = useMemo(
+    () =>
+      courses.findIndex(
+        (c) => getCapacityStatus(c.currentEnrollment, c.maxCapacity) !== 'sold-out',
+      ),
+    [courses],
+  )
+
+  const selectedCourse = courses.find((c) => c.id === selectedId) ?? null
+
+  function handleNext() {
+    if (!selectedCourse) return
+    navigate(`/enroll/${selectedCourse.id}`, { state: { type } })
+  }
+
+  return (
+    <main>
+      {courses.length === 0 ? (
         <EmptyState />
       ) : (
         <div
@@ -106,15 +121,7 @@ function LoadingState() {
   )
 }
 
-function ErrorState({
-  message,
-  onRetry,
-  isRetrying,
-}: {
-  message: string
-  onRetry: () => void
-  isRetrying: boolean
-}) {
+function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
     <div
       role="alert"
@@ -122,8 +129,8 @@ function ErrorState({
     >
       <p className="text-foreground text-base font-medium">강의 목록을 불러오지 못했어요</p>
       <p className="text-muted-foreground text-sm">{message}</p>
-      <Button variant="outline" onClick={onRetry} disabled={isRetrying}>
-        {isRetrying ? '다시 시도 중…' : '다시 시도'}
+      <Button variant="outline" onClick={onRetry}>
+        다시 시도
       </Button>
     </div>
   )
