@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Stepper } from '@/components/Stepper'
-import { SAMPLE_COURSES } from '@/data/sample-courses'
+import { Button } from '@/components/ui/button'
+import { useCoursesQuery } from '@/queries/course'
 import { CategoryTabs, type CategoryFilter } from './_components/CategoryTabs'
 import { CourseCard } from './_components/CourseCard'
 import { EnrollTypeBar } from './_components/EnrollTypeBar'
@@ -15,12 +16,8 @@ export default function CourseListPage() {
   const [category, setCategory] = useState<CategoryFilter>('all')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [type, setType] = useState<EnrollmentType>('personal')
-
-  const courses = useMemo(
-    () =>
-      category === 'all' ? SAMPLE_COURSES : SAMPLE_COURSES.filter((c) => c.category === category),
-    [category],
-  )
+  const { data, isPending, isError, error, refetch, isFetching } = useCoursesQuery(category)
+  const courses = data?.courses ?? []
 
   const firstSelectableIndex = useMemo(
     () =>
@@ -30,7 +27,7 @@ export default function CourseListPage() {
     [courses],
   )
 
-  const selectedCourse = SAMPLE_COURSES.find((c) => c.id === selectedId) ?? null
+  const selectedCourse = courses.find((c) => c.id === selectedId) ?? null
 
   function handleNext() {
     if (!selectedCourse) return
@@ -54,7 +51,11 @@ export default function CourseListPage() {
         <CategoryTabs value={category} onChange={setCategory} />
       </div>
 
-      {courses.length === 0 ? (
+      {isPending ? (
+        <LoadingState />
+      ) : isError ? (
+        <ErrorState message={error.message} onRetry={() => refetch()} isRetrying={isFetching} />
+      ) : courses.length === 0 ? (
         <EmptyState />
       ) : (
         <div
@@ -88,6 +89,43 @@ export default function CourseListPage() {
         onNext={handleNext}
       />
     </main>
+  )
+}
+
+function LoadingState() {
+  return (
+    <div
+      aria-busy="true"
+      aria-label="강의 목록을 불러오는 중"
+      className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3"
+    >
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="bg-muted/40 h-48 animate-pulse rounded-xl border" />
+      ))}
+    </div>
+  )
+}
+
+function ErrorState({
+  message,
+  onRetry,
+  isRetrying,
+}: {
+  message: string
+  onRetry: () => void
+  isRetrying: boolean
+}) {
+  return (
+    <div
+      role="alert"
+      className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed py-16 text-center"
+    >
+      <p className="text-foreground text-base font-medium">강의 목록을 불러오지 못했어요</p>
+      <p className="text-muted-foreground text-sm">{message}</p>
+      <Button variant="outline" onClick={onRetry} disabled={isRetrying}>
+        {isRetrying ? '다시 시도 중…' : '다시 시도'}
+      </Button>
+    </div>
   )
 }
 
