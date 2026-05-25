@@ -9,11 +9,34 @@ type PhoneInputProps = Omit<ComponentPropsWithoutRef<typeof Input>, 'value' | 'o
 const SEOUL_MAX = 10
 const DEFAULT_MAX = 11
 
+export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(function PhoneInput(
+  { value, onChange, ...rest },
+  ref,
+) {
+  const display = useMemo(() => formatPhone(value), [value])
+
+  return (
+    <Input
+      ref={ref}
+      type="tel"
+      inputMode="numeric"
+      autoComplete="tel"
+      value={display}
+      onChange={(e) => {
+        const raw = e.target.value.replace(/\D/g, '')
+        const digits = raw.slice(0, getMaxDigits(raw))
+        onChange(digits)
+      }}
+      {...rest}
+    />
+  )
+})
+
 function getMaxDigits(digits: string) {
   return digits.startsWith('02') ? SEOUL_MAX : DEFAULT_MAX
 }
 
-function formatPhone(digits: string) {
+export function formatPhone(digits: string) {
   const isSeoul = digits.startsWith('02')
   const firstLen = isSeoul ? 2 : 3
 
@@ -40,26 +63,3 @@ function formatPhone(digits: string) {
   if (!last) return `${first}-${middle}`
   return `${first}-${middle}-${last}`
 }
-
-export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(function PhoneInput(
-  { value, onChange, ...rest },
-  ref,
-) {
-  const display = useMemo(() => formatPhone(value), [value])
-
-  return (
-    <Input
-      ref={ref}
-      type="tel"
-      inputMode="numeric"
-      autoComplete="tel"
-      value={display}
-      onChange={(e) => {
-        const raw = e.target.value.replace(/\D/g, '')
-        const digits = raw.slice(0, getMaxDigits(raw))
-        onChange(digits)
-      }}
-      {...rest}
-    />
-  )
-})

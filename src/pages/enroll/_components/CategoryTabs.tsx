@@ -1,7 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { CATEGORIES, CATEGORY_LABELS, type Category } from '@/types/course'
-
-export type CategoryFilter = 'all' | Category
+import { CATEGORIES, CATEGORY_LABELS, type CategoryFilter } from '@/types/course'
 
 interface CategoryTabsProps {
   value: CategoryFilter

@@ -1,6 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import type { Course } from '@/types/course'
-import type { CategoryFilter } from '@/pages/courseList/_components/CategoryTabs'
+import type { CategoryFilter, Course } from '@/types/course'
 import { fetcher } from '@/lib/api'
 
 export interface CourseListResponse {

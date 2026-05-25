@@ -1,109 +1,108 @@
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
-import { Controller, FormProvider, useForm, useWatch, type SubmitHandler } from 'react-hook-form'
+import { useEffect, useState } from 'react'
+import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Stepper } from '@/components/Stepper'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import type { EnrollmentType } from '@/types/course'
-import { CourseInfo } from './_components/CourseInfo'
-import { EnrollTypeSwitch } from './_components/EnrollTypeSwitch'
-import { GroupFields } from './_components/GroupFields'
-import { PersonalFields } from './_components/PersonalFields'
-import { enrollSchema, type EnrollFormValues } from './_schema'
+import type { CategoryFilter } from '@/types/course'
+import { Step1Course } from './_components/Step1Course'
+import { Step2Info } from './_components/Step2Info'
+import { Step3Confirm } from './_components/Step3Confirm'
+import { enrollSchema, STEP_FIELDS, type EnrollFormValues } from './_schema'
 
 const STEPS = ['강의 선택', '정보 입력', '확인 및 제출']
 
-export default function EnrollPage() {
-  const { courseId } = useParams<{ courseId: string }>()
-  const location = useLocation()
-  const navigate = useNavigate()
+type StepIndex = 1 | 2 | 3
 
-  const initialType: EnrollmentType = isEnrollmentType(location.state?.type)
-    ? location.state.type
-    : 'personal'
+export default function EnrollPage() {
+  const [currentStep, setCurrentStep] = useState<StepIndex>(1)
+  const [category, setCategory] = useState<CategoryFilter>('all')
 
   const methods = useForm<EnrollFormValues>({
     resolver: zodResolver(enrollSchema),
-    defaultValues: buildDefaultValues(initialType),
+    defaultValues: buildDefaultValues(),
     mode: 'onTouched',
   })
 
-  const type = useWatch({ control: methods.control, name: 'type' })
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [currentStep])
 
-  const onValid: SubmitHandler<EnrollFormValues> = (data) => {
+  async function goToStep2() {
+    const ok = await methods.trigger(STEP_FIELDS.step1)
+    if (ok) setCurrentStep(2)
+  }
+
+  async function goToStep3() {
+    const type = methods.getValues('type')
+    const fields = type === 'group' ? STEP_FIELDS.step2Group : STEP_FIELDS.step2Personal
+    const ok = await methods.trigger(fields)
+    if (ok) setCurrentStep(3)
+  }
+
+  const onSubmit: SubmitHandler<EnrollFormValues> = (data) => {
     console.log('submit', data)
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8 md:px-6 md:py-12">
+    <main className="mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-12">
       <div className="mb-8 flex justify-center">
-        <Stepper currentStep={2} steps={STEPS} />
+        <Stepper currentStep={currentStep} steps={STEPS} />
       </div>
 
-      <header className="mb-6 space-y-2">
+      <header className="mx-auto mb-6 max-w-2xl space-y-2">
         <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-          수강생 정보를 입력해 주세요
+          {HEADINGS[currentStep].title}
         </h1>
         <p className="text-muted-foreground text-sm md:text-base">
-          신청 유형과 정보를 확인한 뒤 다음 단계로 진행해 주세요.
+          {HEADINGS[currentStep].description}
         </p>
       </header>
 
       <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onValid)} className="space-y-6" noValidate>
-          <CourseInfo courseId={courseId} />
+        <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
+          {currentStep === 1 && (
+            <Step1Course category={category} onCategoryChange={setCategory} onNext={goToStep2} />
+          )}
 
-          <Card>
-            <CardContent className="space-y-6">
-              <section className="space-y-3">
-                <h3 className="text-foreground text-base font-semibold">신청 유형</h3>
-                <Controller
-                  control={methods.control}
-                  name="type"
-                  render={({ field }) => (
-                    <EnrollTypeSwitch value={field.value} onChange={field.onChange} />
-                  )}
-                />
-              </section>
+          {currentStep === 2 && (
+            <div className="mx-auto max-w-2xl">
+              <Step2Info onPrev={() => setCurrentStep(1)} onNext={goToStep3} />
+            </div>
+          )}
 
-              <section className="space-y-3">
-                <h3 className="text-foreground text-base font-semibold">수강생 정보</h3>
-                <PersonalFields />
-              </section>
-
-              {type === 'group' && (
-                <section className="space-y-3">
-                  <h3 className="text-foreground text-base font-semibold">단체 정보</h3>
-                  <GroupFields />
-                </section>
-              )}
-            </CardContent>
-          </Card>
-
-          <div className="flex items-center justify-between gap-3">
-            <Button type="button" variant="outline" onClick={() => navigate('/')}>
-              <ArrowLeft aria-hidden />
-              이전
-            </Button>
-            <Button type="submit">
-              다음
-              <ArrowRight aria-hidden />
-            </Button>
-          </div>
+          {currentStep === 3 && (
+            <div className="mx-auto max-w-2xl">
+              <Step3Confirm
+                onPrev={() => setCurrentStep(2)}
+                onEdit={(step) => setCurrentStep(step)}
+                isSubmitting={methods.formState.isSubmitting}
+              />
+            </div>
+          )}
         </form>
       </FormProvider>
     </main>
   )
 }
 
-function isEnrollmentType(value: unknown): value is EnrollmentType {
-  return value === 'personal' || value === 'group'
+const HEADINGS: Record<StepIndex, { title: string; description: string }> = {
+  1: {
+    title: '수강할 강의를 선택하세요',
+    description: '관심 있는 강의를 고르고 신청 유형을 선택해 주세요.',
+  },
+  2: {
+    title: '수강생 정보를 입력해 주세요',
+    description: '신청 유형과 정보를 확인한 뒤 다음 단계로 진행해 주세요.',
+  },
+  3: {
+    title: '입력한 내용을 확인해 주세요',
+    description: '제출 전 내용을 한 번 더 검토하고 약관에 동의해 주세요.',
+  },
 }
 
-function buildDefaultValues(initialType: EnrollmentType): EnrollFormValues {
+function buildDefaultValues(): EnrollFormValues {
   return {
-    type: initialType,
+    courseId: '',
+    type: 'personal',
     name: '',
     email: '',
     phone: '',
@@ -115,5 +114,6 @@ function buildDefaultValues(initialType: EnrollmentType): EnrollFormValues {
       { name: '', email: '' },
       { name: '', email: '' },
     ],
+    agreedToTerms: false,
   } as unknown as EnrollFormValues
 }

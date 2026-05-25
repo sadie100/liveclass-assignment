@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import CourseListPage from '@/pages/courseList'
 import EnrollPage from '@/pages/enroll'
 import EnrollDonePage from '@/pages/enrollDone'
 
@@ -17,9 +16,9 @@ export default function App() {
     <BrowserRouter>
       <ScrollToTop />
       <Routes>
-        <Route path="/" element={<CourseListPage />} />
-        <Route path="/enroll/:courseId" element={<EnrollPage />} />
-        <Route path="/enroll/:courseId/done" element={<EnrollDonePage />} />
+        <Route path="/" element={<Navigate to="/enroll" replace />} />
+        <Route path="/enroll" element={<EnrollPage />} />
+        <Route path="/enroll/done" element={<EnrollDonePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

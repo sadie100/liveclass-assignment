@@ -30,3 +30,5 @@ export interface Course {
 }
 
 export type EnrollmentType = 'personal' | 'group'
+
+export type CategoryFilter = 'all' | Category
