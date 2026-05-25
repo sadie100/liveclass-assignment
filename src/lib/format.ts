@@ -1,16 +1,3 @@
-import type { Category } from '@/types/course'
-
-const CATEGORY_LABELS: Record<Category, string> = {
-  development: '개발',
-  design: '디자인',
-  marketing: '마케팅',
-  business: '비즈니스',
-}
-
-export function categoryLabel(category: Category): string {
-  return CATEGORY_LABELS[category]
-}
-
 const priceFormatter = new Intl.NumberFormat('ko-KR', {
   style: 'currency',
   currency: 'KRW',

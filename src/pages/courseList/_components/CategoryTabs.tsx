@@ -1,10 +1,7 @@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { categoryLabel } from '@/lib/format'
-import type { Category } from '@/types/course'
+import { CATEGORIES, CATEGORY_LABELS, type Category } from '@/types/course'
 
 export type CategoryFilter = 'all' | Category
-
-const CATEGORIES: Category[] = ['development', 'design', 'marketing', 'business']
 
 interface CategoryTabsProps {
   value: CategoryFilter
@@ -18,7 +15,7 @@ export function CategoryTabs({ value, onChange }: CategoryTabsProps) {
         <TabsTrigger value="all">전체</TabsTrigger>
         {CATEGORIES.map((cat) => (
           <TabsTrigger key={cat} value={cat}>
-            {categoryLabel(cat)}
+            {CATEGORY_LABELS[cat]}
           </TabsTrigger>
         ))}
       </TabsList>

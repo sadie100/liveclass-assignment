@@ -1,9 +1,7 @@
 import { http, HttpResponse, delay, type HttpHandler } from 'msw'
 import { SAMPLE_COURSES } from '@/mocks/data'
-import type { Category } from '@/types/course'
+import { CATEGORIES, type Category } from '@/types/course'
 import type { CourseListResponse } from '@/queries/course'
-
-const CATEGORIES: Category[] = ['development', 'design', 'marketing', 'business']
 
 export const handlers: HttpHandler[] = [
   http.get('/api/courses', async ({ request }) => {

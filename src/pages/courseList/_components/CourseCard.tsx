@@ -3,8 +3,8 @@ import { Calendar, Check, Users } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
-import { categoryLabel, formatDateRange, formatPrice, getCapacityStatus } from '@/lib/format'
-import type { Course } from '@/types/course'
+import { formatDateRange, formatPrice, getCapacityStatus } from '@/lib/format'
+import { CATEGORY_LABELS, type Course } from '@/types/course'
 
 interface CourseCardProps {
   course: Course
@@ -38,7 +38,7 @@ export function CourseCard({ course, selected, tabIndex, onSelect }: CourseCardP
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <Badge variant="secondary">{categoryLabel(course.category)}</Badge>
+        <Badge variant="secondary">{CATEGORY_LABELS[course.category]}</Badge>
         {status === 'almost-full' && (
           <Badge
             variant="outline"
