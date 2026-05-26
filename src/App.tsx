@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import EnrollPage from '@/pages/enroll'
-import EnrollDonePage from '@/pages/enrollDone'
+import EnrollPage from '@/pages/enroll/EnrollPage'
+import EnrollDonePage from '@/pages/enroll/EnrollDonePage'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
