@@ -1,18 +1,30 @@
 import { useEffect, useState } from 'react'
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useNavigate } from 'react-router-dom'
 import { Stepper } from '@/components/Stepper'
 import type { CategoryFilter } from '@/types/course'
+import { useSubmitEnrollmentMutation } from '@/queries/enrollment'
+import {
+  ENROLLMENT_ERROR_MESSAGES,
+  type EnrollmentErrorCode,
+} from '@/types/enrollment'
 import { Step1Course } from './_components/Step1Course'
 import { Step2Info } from './_components/Step2Info'
 import { Step3Confirm } from './_components/Step3Confirm'
-import { enrollSchema, STEP_FIELDS, type EnrollFormValues } from './_schema'
+import {
+  enrollSchema,
+  STEP_FIELDS,
+  toEnrollmentRequest,
+  type EnrollFormValues,
+} from './_schema'
 
 const STEPS = ['강의 선택', '정보 입력', '확인 및 제출']
 
 type StepIndex = 1 | 2 | 3
 
 export default function EnrollPage() {
+  const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState<StepIndex>(1)
   const [category, setCategory] = useState<CategoryFilter>('all')
 
@@ -21,6 +33,8 @@ export default function EnrollPage() {
     defaultValues: buildDefaultValues(),
     mode: 'onTouched',
   })
+
+  const {mutate: submitEnroll, isPending} = useSubmitEnrollmentMutation()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -39,7 +53,33 @@ export default function EnrollPage() {
   }
 
   const onSubmit: SubmitHandler<EnrollFormValues> = (data) => {
-    console.log('submit', data)
+    const enrollData = toEnrollmentRequest(data)
+    submitEnroll(enrollData, {
+      onSuccess: (res) => {
+        navigate('/enroll/done', {
+          replace: true,
+          state: {
+            enrollmentId: res.enrollmentId,
+            status: res.status,
+            enrolledAt: res.enrolledAt,
+            courseId: data.courseId,
+            applicantName: data.name,
+            type: data.type,
+            ...(data.type === 'group'
+              ? {
+                  organizationName: data.organizationName,
+                  headCount: data.headCount,
+                }
+              : {}),
+          },
+        })
+      },
+      onError: (err) => {
+        const code = err.code as EnrollmentErrorCode
+        const message = ENROLLMENT_ERROR_MESSAGES[code] ?? err.message
+        alert(message)
+      },
+    })
   }
 
   return (
@@ -79,7 +119,7 @@ export default function EnrollPage() {
                 onPrev={() => setCurrentStep(2)}
                 onEdit={(step) => setCurrentStep(step)}
                 onChangeCourse={() => setCurrentStep(1)}
-                isSubmitting={methods.formState.isSubmitting}
+                isSubmitting={isPending}
               />
             </div>
           )}

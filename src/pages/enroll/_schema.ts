@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { EnrollmentRequest } from '@/types/enrollment'
 
 const PHONE_REGEX = /^\d{9,11}$/
 const PHONE_MESSAGE = '전화번호 9~11자리를 숫자만 입력해 주세요.'
@@ -47,6 +48,37 @@ export const enrollSchema = z.discriminatedUnion('type', [personalSchema, groupS
 
 export type EnrollFormValues = z.infer<typeof enrollSchema>
 export type GroupFormValues = z.infer<typeof groupSchema>
+
+export function toEnrollmentRequest(values: EnrollFormValues): EnrollmentRequest {
+  const applicant = {
+    name: values.name,
+    email: values.email,
+    phone: values.phone,
+    ...(values.motivation ? { motivation: values.motivation } : {}),
+  }
+
+  if (values.type === 'group') {
+    return {
+      courseId: values.courseId,
+      type: 'group',
+      applicant,
+      group: {
+        organizationName: values.organizationName,
+        headCount: values.headCount,
+        participants: values.participants,
+        contactPerson: values.contactPerson,
+      },
+      agreedToTerms: values.agreedToTerms,
+    }
+  }
+
+  return {
+    courseId: values.courseId,
+    type: 'personal',
+    applicant,
+    agreedToTerms: values.agreedToTerms,
+  }
+}
 
 export const STEP_FIELDS = {
   step1: ['courseId', 'type'] as const,
