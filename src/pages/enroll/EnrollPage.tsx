@@ -13,6 +13,7 @@ import { Step1Course } from './_components/Step1Course'
 import { Step2Info } from './_components/Step2Info'
 import { Step3Confirm } from './_components/Step3Confirm'
 import {
+  DEFAULT_VALUES,
   enrollSchema,
   STEP_FIELDS,
   toEnrollmentRequest,
@@ -30,7 +31,7 @@ export default function EnrollPage() {
 
   const methods = useForm<EnrollFormValues>({
     resolver: zodResolver(enrollSchema),
-    defaultValues: buildDefaultValues(),
+    defaultValues: DEFAULT_VALUES,
     mode: 'onTouched',
   })
 
@@ -144,21 +145,3 @@ const HEADINGS: Record<StepIndex, { title: string; description: string }> = {
   },
 }
 
-function buildDefaultValues(): EnrollFormValues {
-  return {
-    courseId: '',
-    type: 'personal',
-    name: '',
-    email: '',
-    phone: '',
-    motivation: '',
-    organizationName: '',
-    headCount: 2,
-    contactPerson: '',
-    participants: [
-      { name: '', email: '' },
-      { name: '', email: '' },
-    ],
-    agreedToTerms: false,
-  } as unknown as EnrollFormValues
-}

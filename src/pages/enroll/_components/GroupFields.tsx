@@ -1,13 +1,10 @@
 import { useEffect } from 'react'
 import { Controller, useFieldArray, useFormContext, useWatch } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
-import type { GroupFormValues } from '../_schema'
+import { MAX_PARTICIPANTS, MIN_PARTICIPANTS, type GroupFormValues } from '../_schema'
 import { Field } from '../../../components/FormField'
 import { ParticipantRow } from './ParticipantRow'
 import { PhoneInput } from '../../../components/PhoneInput'
-
-const MIN_PARTICIPANTS = 2
-const MAX_PARTICIPANTS = 10
 
 export function GroupFields() {
   const {
