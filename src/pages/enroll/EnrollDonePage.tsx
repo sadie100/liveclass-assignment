@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ErrorBoundary } from 'react-error-boundary'
 import { CheckCircle2 } from 'lucide-react'
@@ -29,13 +29,15 @@ export default function EnrollDonePage() {
   const navigate = useNavigate()
   const location = useLocation()
   const state = location.state as EnrollDoneState | null
+  const hasAlertedRef = useRef(false)
 
   useEffect(() => {
-    if (!state) {
+    if (!state && !hasAlertedRef.current) {
+      hasAlertedRef.current = true
       alert('완료된 요청입니다. 강의 신청 페이지로 이동합니다.')
       navigate('/enroll', { replace: true })
     }
-  }, [state])
+  }, [state, navigate])
 
   if (!state) return null
 
