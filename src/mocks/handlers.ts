@@ -1,12 +1,12 @@
 import { http, HttpResponse, delay, type HttpHandler } from 'msw'
 import { SAMPLE_COURSES } from '@/mocks/data'
+import type { ErrorResponse } from '@/types/api'
 import { CATEGORIES, type Category } from '@/types/course'
 import type { CourseListResponse } from '@/queries/course'
 import {
   EnrollmentErrorCode,
   ENROLLMENT_ERROR_MESSAGES,
   EnrollmentStatus,
-  type EnrollmentErrorResponse,
   type EnrollmentRequest,
   type EnrollmentResponse,
 } from '@/types/enrollment'
@@ -18,7 +18,7 @@ function errorResponse(
   code: EnrollmentErrorCode,
   details?: Record<string, string>,
 ) {
-  const body: EnrollmentErrorResponse = {
+  const body: ErrorResponse = {
     code,
     message: ENROLLMENT_ERROR_MESSAGES[code],
     ...(details ? { details } : {}),

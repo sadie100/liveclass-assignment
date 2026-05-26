@@ -54,9 +54,3 @@ export interface EnrollmentResponse {
   status: EnrollmentStatus
   enrolledAt: string
 }
-
-export interface EnrollmentErrorResponse {
-  code: EnrollmentErrorCode | string
-  message: string
-  details?: Record<string, string>
-}

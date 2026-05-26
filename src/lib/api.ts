@@ -1,20 +1,27 @@
+import type { ErrorResponse } from '@/types/api'
+
 export class ApiError extends Error {
   readonly status: number
-  readonly body: unknown
+  readonly code: string
+  readonly details?: Record<string, string>
 
-  constructor(status: number, body: unknown, message?: string) {
-    super(message ?? `API 요청 실패 (${status})`)
+  constructor(status: number, body: ErrorResponse) {
+    super(body.message)
     this.name = 'ApiError'
     this.status = status
-    this.body = body
+    this.code = body.code
+    this.details = body.details
   }
 }
 
 export async function fetcher<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init)
   if (!res.ok) {
-    const body = await res.json().catch(() => null)
-    throw new ApiError(res.status, body)
+    const body = (await res.json().catch(() => null)) as ErrorResponse | null
+    throw new ApiError(
+      res.status,
+      body ?? { code: 'UNKNOWN', message: `API 요청 실패 (${res.status})` },
+    )
   }
   return res.json() as Promise<T>
 }
