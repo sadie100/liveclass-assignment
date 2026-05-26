@@ -5,10 +5,8 @@ import { useNavigate } from 'react-router-dom'
 import { Stepper } from '@/components/Stepper'
 import type { CategoryFilter } from '@/types/course'
 import { useSubmitEnrollmentMutation } from '@/queries/enrollment'
-import {
-  ENROLLMENT_ERROR_MESSAGES,
-  type EnrollmentErrorCode,
-} from '@/types/enrollment'
+import { ENROLLMENT_ERROR_MESSAGES, type EnrollmentErrorCode } from '@/types/enrollment'
+import { RestoreDraftDialog } from './_components/RestoreDraftDialog'
 import { Step1Course } from './_components/Step1Course'
 import { Step2Info } from './_components/Step2Info'
 import { Step3Confirm } from './_components/Step3Confirm'
@@ -19,6 +17,7 @@ import {
   toEnrollmentRequest,
   type EnrollFormValues,
 } from './_schema'
+import { useEnrollDraft } from './_hooks/useEnrollDraft'
 
 const STEPS = ['강의 선택', '정보 입력', '확인 및 제출']
 
@@ -35,7 +34,13 @@ export default function EnrollPage() {
     mode: 'onTouched',
   })
 
-  const {mutate: submitEnroll, isPending} = useSubmitEnrollmentMutation()
+  const { isDraftDialogOpen, confirmRestore, cancelRestore, clearDraft } = useEnrollDraft({
+    methods,
+    currentStep,
+    setCurrentStep,
+  })
+
+  const { mutate: submitEnroll, isPending } = useSubmitEnrollmentMutation()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -57,6 +62,7 @@ export default function EnrollPage() {
     const enrollData = toEnrollmentRequest(data)
     submitEnroll(enrollData, {
       onSuccess: (res) => {
+        clearDraft()
         navigate('/enroll/done', {
           replace: true,
           state: {
@@ -126,6 +132,12 @@ export default function EnrollPage() {
           )}
         </form>
       </FormProvider>
+
+      <RestoreDraftDialog
+        open={isDraftDialogOpen}
+        onConfirm={confirmRestore}
+        onCancel={cancelRestore}
+      />
     </main>
   )
 }
@@ -144,4 +156,3 @@ const HEADINGS: Record<StepIndex, { title: string; description: string }> = {
     description: '제출 전 내용을 한 번 더 검토하고 약관에 동의해 주세요.',
   },
 }
-
