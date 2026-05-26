@@ -9,21 +9,24 @@ import { GroupFields } from './GroupFields'
 import { PersonalFields } from './PersonalFields'
 import type { EnrollFormValues } from '../_schema'
 import { useChangeEnrollType } from '../_hooks/useChangeEnrollType'
+import { useCourseSoldOut } from '@/queries/course'
 
 interface Step2InfoProps {
   onPrev: () => void
   onNext: () => Promise<void> | void
+  onChangeCourse: () => void
 }
 
-export function Step2Info({ onPrev, onNext }: Step2InfoProps) {
+export function Step2Info({ onPrev, onNext, onChangeCourse }: Step2InfoProps) {
   const { control } = useFormContext<EnrollFormValues>()
   const courseId = useWatch({ control, name: 'courseId' })
   const type = useWatch({ control, name: 'type' })
   const changeEnrollType = useChangeEnrollType()
+  const soldOut = useCourseSoldOut(courseId)
 
   return (
     <div className="space-y-6">
-      <CourseInfo courseId={courseId} />
+      <CourseInfo courseId={courseId} onChangeCourse={onChangeCourse} />
 
       <Card>
         <CardContent className="space-y-6">
@@ -63,7 +66,7 @@ export function Step2Info({ onPrev, onNext }: Step2InfoProps) {
           <ArrowLeft aria-hidden />
           이전
         </Button>
-        <Button type="button" onClick={() => void onNext()}>
+        <Button type="button" onClick={() => void onNext()} disabled={soldOut}>
           다음
           <ArrowRight aria-hidden />
         </Button>

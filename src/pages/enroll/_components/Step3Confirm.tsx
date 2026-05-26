@@ -7,26 +7,29 @@ import { Separator } from '@/components/ui/separator'
 import { CourseInfo } from './CourseInfo'
 import type { EnrollFormValues } from '../_schema'
 import { formatPhone } from '@/lib/format'
+import { useCourseSoldOut } from '@/queries/course'
 
 interface Step3ConfirmProps {
   onPrev: () => void
   onEdit: (step: 1 | 2) => void
+  onChangeCourse: () => void
   isSubmitting: boolean
 }
 
-export function Step3Confirm({ onPrev, onEdit, isSubmitting }: Step3ConfirmProps) {
+export function Step3Confirm({ onPrev, onEdit, onChangeCourse, isSubmitting }: Step3ConfirmProps) {
   const {
     control,
     formState: { errors },
   } = useFormContext<EnrollFormValues>()
   const values = useWatch({ control })
+  const soldOut = useCourseSoldOut(values.courseId)
 
   if (!values.type) return null
 
   return (
     <div className="space-y-6">
       <SectionHeader title="강의 정보" onEdit={() => onEdit(1)} editLabel="강의 변경" />
-      <CourseInfo courseId={values.courseId} />
+      <CourseInfo courseId={values.courseId} onChangeCourse={onChangeCourse} />
 
       <SectionHeader title="수강생 정보" onEdit={() => onEdit(2)} editLabel="정보 수정" />
       <Card>
@@ -139,7 +142,7 @@ export function Step3Confirm({ onPrev, onEdit, isSubmitting }: Step3ConfirmProps
           <ArrowLeft aria-hidden />
           이전
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting || soldOut}>
           {isSubmitting ? '제출 중...' : '신청 제출'}
         </Button>
       </div>

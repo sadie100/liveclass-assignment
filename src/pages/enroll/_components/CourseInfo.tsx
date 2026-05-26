@@ -3,9 +3,15 @@ import { Link } from 'react-router-dom'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Button } from '@/components/ui/button'
 import { useCourseQuery } from '@/queries/course'
+import { getCapacityStatus } from '@/lib/format'
 import { CourseSummaryCard } from './CourseSummaryCard'
 
-export function CourseInfo({ courseId }: { courseId: string | undefined }) {
+interface CourseInfoProps {
+  courseId: string | undefined
+  onChangeCourse: () => void
+}
+
+export function CourseInfo({ courseId, onChangeCourse }: CourseInfoProps) {
   return (
     <ErrorBoundary
       resetKeys={[courseId]}
@@ -14,13 +20,19 @@ export function CourseInfo({ courseId }: { courseId: string | undefined }) {
       )}
     >
       <Suspense fallback={<CourseLoadingState />}>
-        <CourseSummarySection courseId={courseId} />
+        <CourseSummarySection courseId={courseId} onChangeCourse={onChangeCourse} />
       </Suspense>
     </ErrorBoundary>
   )
 }
 
-function CourseSummarySection({ courseId }: { courseId: string | undefined }) {
+function CourseSummarySection({
+  courseId,
+  onChangeCourse,
+}: {
+  courseId: string | undefined
+  onChangeCourse: () => void
+}) {
   const { data: course } = useCourseQuery(courseId)
 
   if (!course) {
@@ -34,6 +46,11 @@ function CourseSummarySection({ courseId }: { courseId: string | undefined }) {
       </div>
     )
   }
+
+  if (getCapacityStatus(course.currentEnrollment, course.maxCapacity) === 'sold-out') {
+    return <CourseSoldOutState onChangeCourse={onChangeCourse} />
+  }
+
   return <CourseSummaryCard course={course} />
 }
 
@@ -51,6 +68,23 @@ function CourseErrorState({ message, onRetry }: { message: string; onRetry: () =
       <p className="text-muted-foreground text-sm">{message}</p>
       <Button variant="outline" onClick={onRetry}>
         다시 시도
+      </Button>
+    </div>
+  )
+}
+
+function CourseSoldOutState({ onChangeCourse }: { onChangeCourse: () => void }) {
+  return (
+    <div
+      role="alert"
+      className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed py-10 text-center"
+    >
+      <p className="text-foreground text-base font-medium">강의가 마감되었어요</p>
+      <p className="text-muted-foreground text-sm">
+        선택하신 강의의 정원이 모두 찼습니다. 다른 강의를 선택해 주세요.
+      </p>
+      <Button variant="outline" onClick={onChangeCourse}>
+        강의 변경
       </Button>
     </div>
   )

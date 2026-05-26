@@ -32,6 +32,13 @@
 - TanStack Query 공식 SSR 가이드에서 권장 예시로 사용하는 무난한 출발값이다.
 - 너무 짧으면(`0`) 라우팅·포커스 전환마다 재요청이 터져 캐싱의 의미가 사라지고, 너무 길면 정적이지 않은 데이터까지 stale 노출 위험이 커진다.
 
+### 강의 조회 쿼리는 `staleTime: 0`으로 override
+
+`useCoursesQuery` / `useCourseQuery`는 개별적으로 `staleTime: 0`을 지정했다.
+
+강의의 잔여석(`currentEnrollment` / `maxCapacity`)은 다른 사용자의 신청에 따라 실시간으로 변한다. 캐시된 값을 보여 주다가 신청 단계에서 `COURSE_FULL` 에러가 나면 사용자 경험이 떨어지므로, 화면 진입 시점마다 최신 데이터를 다시 가져오도록 설정했다.
+
+
 ### Suspense + ErrorBoundary로 로딩/에러 처리 선언화
 
 강의 목록 화면의 로딩·에러 분기를 `isPending` / `isError`로 직접 다루는 명령형 방식 대신, `useSuspenseQuery` + `<Suspense>` + `<ErrorBoundary>` 조합으로 전환했다.
