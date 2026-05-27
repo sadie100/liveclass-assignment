@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 import { DEFAULT_VALUES, type EnrollFormValues } from '../_schema'
 
@@ -54,33 +54,41 @@ type UseEnrollDraftOptions = {
 }
 
 export function useEnrollDraft({ methods, currentStep, setCurrentStep }: UseEnrollDraftOptions) {
+  // 지금 로컬스토리지에 저장된 draft. 사용자가 복원 여부를 결정할 때만 참조한다.
   const [initialDraft] = useState(loadDraft)
+  // 로컬스토리지에 draft가 있으면 복원 여부를 묻는 다이얼로그를 연다.
   const [isDraftDialogOpen, setIsDraftDialogOpen] = useState(initialDraft !== null)
-  const [autoSaveEnabled, setAutoSaveEnabled] = useState(initialDraft === null)
+  // 다이얼로그 confirm/cancel이 중복 호출되어 같은 결정을 두 번 처리하지 않도록 막는다.
   const decidedRef = useRef(false)
-
+  // 복원/새로 시작 선택 전이나 clearDraft 이후에는 임시저장된 값을 덮어쓰지 않도록 막는다.
+  const canWriteDraftRef = useRef(initialDraft === null)
+  // debounce된 저장 함수가 최신 단계를 읽을 수 있도록 currentStep을 ref로 보관한다.
   const stepRef = useRef(currentStep)
+
   useEffect(() => {
     stepRef.current = currentStep
   }, [currentStep])
 
-  useEffect(() => {
-    if (!autoSaveEnabled) return
+  const writeDraft = useCallback(
+    (step: StepIndex = stepRef.current) => {
+      if (!canWriteDraftRef.current) return
 
-    let timer: ReturnType<typeof setTimeout> | null = null
-
-    const writeDraft = () => {
       try {
         const payload: StoredDraft = {
           version: 1,
-          step: stepRef.current,
+          step,
           values: methods.getValues(),
         }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
       } catch {
-        // quota or serialization issues — ignore
+        // quota or serialization issues - ignore
       }
-    }
+    },
+    [methods],
+  )
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null
 
     const subscription = methods.watch(() => {
       if (timer) clearTimeout(timer)
@@ -94,24 +102,16 @@ export function useEnrollDraft({ methods, currentStep, setCurrentStep }: UseEnro
         writeDraft()
       }
     }
-  }, [autoSaveEnabled, methods])
+  }, [methods, writeDraft])
 
   useEffect(() => {
-    if (!autoSaveEnabled) return
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (!raw) return
-      const parsed = JSON.parse(raw) as StoredDraft
-      const payload: StoredDraft = {
-        version: 1,
-        step: currentStep,
-        values: parsed.values,
-      }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
-    } catch {
-      // ignore
-    }
-  }, [currentStep, autoSaveEnabled])
+    writeDraft(currentStep)
+  }, [currentStep, writeDraft])
+
+  function clearDraft() {
+    canWriteDraftRef.current = false
+    clearDraftStorage()
+  }
 
   function confirmRestore() {
     if (decidedRef.current) return
@@ -121,7 +121,7 @@ export function useEnrollDraft({ methods, currentStep, setCurrentStep }: UseEnro
       setCurrentStep(initialDraft.step)
     }
     setIsDraftDialogOpen(false)
-    setAutoSaveEnabled(true)
+    canWriteDraftRef.current = true
   }
 
   function cancelRestore() {
@@ -129,13 +129,13 @@ export function useEnrollDraft({ methods, currentStep, setCurrentStep }: UseEnro
     decidedRef.current = true
     clearDraftStorage()
     setIsDraftDialogOpen(false)
-    setAutoSaveEnabled(true)
+    canWriteDraftRef.current = true
   }
 
   return {
     isDraftDialogOpen,
     confirmRestore,
     cancelRestore,
-    clearDraft: clearDraftStorage,
+    clearDraft,
   }
 }
