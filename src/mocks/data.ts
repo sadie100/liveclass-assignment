@@ -1,6 +1,6 @@
 import { Category, type Course } from '@/types/course'
 
-export const SAMPLE_COURSES: Course[] = [
+export const coursesStore: Course[] = [
   {
     id: 'dev-001',
     title: '풀스택 웹 개발 부트캠프',

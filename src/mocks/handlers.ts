@@ -1,5 +1,5 @@
 import { http, HttpResponse, delay, type HttpHandler } from 'msw'
-import { SAMPLE_COURSES } from '@/mocks/data'
+import { coursesStore } from '@/mocks/data'
 import type { ErrorResponse } from '@/types/api'
 import { CATEGORIES, type Category } from '@/types/course'
 import type { CourseListResponse } from '@/queries/course'
@@ -35,8 +35,8 @@ export const handlers: HttpHandler[] = [
 
     const courses =
       category && CATEGORIES.includes(category as Category)
-        ? SAMPLE_COURSES.filter((c) => c.category === category)
-        : SAMPLE_COURSES
+        ? coursesStore.filter((c) => c.category === category)
+        : coursesStore
 
     return HttpResponse.json<CourseListResponse>({
       courses,
@@ -49,7 +49,7 @@ export const handlers: HttpHandler[] = [
 
     const body = (await request.json()) as EnrollmentRequest
 
-    const course = SAMPLE_COURSES.find((c) => c.id === body.courseId)
+    const course = coursesStore.find((c) => c.id === body.courseId)
     if (!course) {
       return errorResponse(400, EnrollmentErrorCode.InvalidInput, {
         courseId: '존재하지 않는 강의입니다.',
