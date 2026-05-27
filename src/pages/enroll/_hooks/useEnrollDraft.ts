@@ -1,37 +1,31 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
+import { z } from 'zod'
 import { DEFAULT_VALUES, type EnrollFormValues } from '../_schema'
 
 const STORAGE_KEY = 'enroll-draft:v1'
 const DEBOUNCE_MS = 400
 
-type StepIndex = 1 | 2 | 3
+const stepSchema = z.union([z.literal(1), z.literal(2), z.literal(3)])
+type StepIndex = z.infer<typeof stepSchema>
 
-type StoredDraft = {
-  version: 1
-  step: StepIndex
-  values: EnrollFormValues
-}
+const storedDraftSchema = z.object({
+  version: z.literal(1),
+  step: stepSchema,
+  values: z.record(z.string(), z.unknown()),
+})
 
 function loadDraft(): { values: EnrollFormValues; step: StepIndex } | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
-    const parsed = JSON.parse(raw) as unknown
-    if (!parsed || typeof parsed !== 'object' || (parsed as StoredDraft).version !== 1) {
+    const result = storedDraftSchema.safeParse(JSON.parse(raw))
+    if (!result.success) {
       localStorage.removeItem(STORAGE_KEY)
       return null
     }
-    const { step, values } = parsed as StoredDraft
-    if (step !== 1 && step !== 2 && step !== 3) {
-      localStorage.removeItem(STORAGE_KEY)
-      return null
-    }
-    if (!values || typeof values !== 'object') {
-      localStorage.removeItem(STORAGE_KEY)
-      return null
-    }
-    const merged = { ...DEFAULT_VALUES, ...(values as object) } as EnrollFormValues
+    const { step, values } = result.data
+    const merged = { ...DEFAULT_VALUES, ...values } as EnrollFormValues
     return { values: merged, step }
   } catch {
     localStorage.removeItem(STORAGE_KEY)
@@ -74,8 +68,8 @@ export function useEnrollDraft({ methods, currentStep, setCurrentStep }: UseEnro
       if (!canWriteDraftRef.current) return
 
       try {
-        const payload: StoredDraft = {
-          version: 1,
+        const payload = {
+          version: 1 as const,
           step,
           values: methods.getValues(),
         }
