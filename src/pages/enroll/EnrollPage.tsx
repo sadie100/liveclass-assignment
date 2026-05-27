@@ -18,6 +18,7 @@ import {
   type EnrollFormValues,
 } from './_schema'
 import { useEnrollDraft } from './_hooks/useEnrollDraft'
+import { useLeaveGuard } from '../../hooks/useLeaveGuard'
 
 const STEPS = ['강의 선택', '정보 입력', '확인 및 제출']
 
@@ -41,6 +42,10 @@ export default function EnrollPage() {
   })
 
   const { mutate: submitEnroll, isPending } = useSubmitEnrollmentMutation()
+
+  useLeaveGuard({
+    enabled: methods.formState.isDirty && !isDraftDialogOpen,
+  })
 
   useEffect(() => {
     window.scrollTo(0, 0)
