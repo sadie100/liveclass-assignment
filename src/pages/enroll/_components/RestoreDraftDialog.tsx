@@ -27,7 +27,7 @@ export function RestoreDraftDialog({ open, onConfirm, onCancel }: Props) {
         <AlertDialogHeader>
           <AlertDialogTitle>작성 중이던 데이터가 있습니다</AlertDialogTitle>
           <AlertDialogDescription>
-            이전에 입력하던 내용을 이어서 작성하시겠습니까? 취소하면 새로 시작합니다.
+            이전에 입력하던 내용을 이어서 작성하시겠습니까? 취소하면 임시로 저장된 데이터가 삭제됩니다.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
