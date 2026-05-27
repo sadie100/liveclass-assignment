@@ -66,6 +66,7 @@ export function useEnrollDraft({ methods, currentStep, setCurrentStep }: UseEnro
   const writeDraft = useCallback(
     (step: StepIndex = stepRef.current) => {
       if (!canWriteDraftRef.current) return
+      if (!methods.formState.isDirty) return
 
       try {
         const payload = {
