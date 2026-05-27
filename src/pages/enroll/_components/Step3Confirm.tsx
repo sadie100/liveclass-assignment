@@ -1,4 +1,5 @@
-import { ArrowLeft, Mail, Pencil, Phone, User, Users } from 'lucide-react'
+import { useEffect, useRef } from 'react'
+import { AlertCircle, ArrowLeft, Mail, Pencil, Phone, User, Users } from 'lucide-react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -8,15 +9,25 @@ import { CourseInfo } from './CourseInfo'
 import type { EnrollFormValues } from '../_schema'
 import { formatPhone } from '@/lib/format'
 import { useCourseSoldOut } from '@/queries/course'
+import { ENROLLMENT_ERROR_MESSAGES, type EnrollmentErrorCode } from '@/types/enrollment'
+
+type SubmitErrorReason = EnrollmentErrorCode | 'SOLD_OUT' | 'UNKNOWN'
 
 interface Step3ConfirmProps {
   onPrev: () => void
   onEdit: (step: 1 | 2) => void
   onChangeCourse: () => void
   isSubmitting: boolean
+  submitError: EnrollmentErrorCode | 'UNKNOWN' | null
 }
 
-export function Step3Confirm({ onPrev, onEdit, onChangeCourse, isSubmitting }: Step3ConfirmProps) {
+export function Step3Confirm({
+  onPrev,
+  onEdit,
+  onChangeCourse,
+  isSubmitting,
+  submitError,
+}: Step3ConfirmProps) {
   const {
     control,
     formState: { errors },
@@ -137,6 +148,12 @@ export function Step3Confirm({ onPrev, onEdit, onChangeCourse, isSubmitting }: S
         </CardContent>
       </Card>
 
+      <SubmitErrorBanner
+        reason={submitError ?? (soldOut ? 'SOLD_OUT' : null)}
+        onChangeCourse={onChangeCourse}
+        onEdit={onEdit}
+      />
+
       <div className="flex items-center justify-between gap-3">
         <Button type="button" variant="outline" onClick={onPrev} disabled={isSubmitting}>
           <ArrowLeft aria-hidden />
@@ -145,6 +162,92 @@ export function Step3Confirm({ onPrev, onEdit, onChangeCourse, isSubmitting }: S
         <Button type="submit" disabled={isSubmitting || soldOut}>
           {isSubmitting ? '제출 중...' : '신청 제출'}
         </Button>
+      </div>
+    </div>
+  )
+}
+
+const SUBMIT_ERROR_CONTENT: Record<
+  SubmitErrorReason,
+  { title: string; description: string }
+> = {
+  COURSE_FULL: {
+    title: ENROLLMENT_ERROR_MESSAGES.COURSE_FULL,
+    description: '다른 강의를 선택해 다시 신청해 주세요.',
+  },
+  DUPLICATE_ENROLLMENT: {
+    title: ENROLLMENT_ERROR_MESSAGES.DUPLICATE_ENROLLMENT,
+    description: '한 강의는 한 번만 신청할 수 있어요. 다른 강의를 둘러보세요.',
+  },
+  INVALID_INPUT: {
+    title: ENROLLMENT_ERROR_MESSAGES.INVALID_INPUT,
+    description: '입력 정보로 돌아가 값을 확인한 뒤 다시 제출해 주세요.',
+  },
+  SOLD_OUT: {
+    title: '선택한 강의가 마감되었습니다.',
+    description: '신청을 진행할 수 없어요. 다른 강의를 선택해 주세요.',
+  },
+  UNKNOWN: {
+    title: '신청 처리 중 문제가 발생했습니다.',
+    description: '잠시 후 다시 시도해 주세요. 문제가 계속되면 고객센터로 문의해 주세요.',
+  },
+}
+
+function SubmitErrorBanner({
+  reason,
+  onChangeCourse,
+  onEdit,
+}: {
+  reason: SubmitErrorReason | null
+  onChangeCourse: () => void
+  onEdit: (step: 1 | 2) => void
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (reason) {
+      ref.current?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    }
+  }, [reason])
+
+  if (!reason) return null
+
+  const { title, description } = SUBMIT_ERROR_CONTENT[reason]
+
+  return (
+    <div
+      ref={ref}
+      role="alert"
+      aria-live="assertive"
+      className="border-destructive/40 bg-destructive/5 flex items-start gap-3 rounded-lg border p-4"
+    >
+      <AlertCircle aria-hidden className="text-destructive mt-0.5 size-5 shrink-0" />
+      <div className="min-w-0 flex-1 space-y-1">
+        <p className="text-destructive text-sm font-semibold">{title}</p>
+        <p className="text-foreground/80 text-xs leading-relaxed">{description}</p>
+        <div className="pt-2">
+          {reason === 'INVALID_INPUT' ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => onEdit(2)}
+              className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+            >
+              정보 다시 확인
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={onChangeCourse}
+              className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+            >
+              다른 강의 선택
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   )

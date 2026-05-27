@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { Stepper } from '@/components/Stepper'
 import type { CategoryFilter } from '@/types/course'
 import { useSubmitEnrollmentMutation } from '@/queries/enrollment'
-import { ENROLLMENT_ERROR_MESSAGES, type EnrollmentErrorCode } from '@/types/enrollment'
+import { EnrollmentErrorCode } from '@/types/enrollment'
 import { RestoreDraftDialog } from './_components/RestoreDraftDialog'
 import { Step1Course } from './_components/Step1Course'
 import { Step2Info } from './_components/Step2Info'
@@ -22,12 +22,15 @@ import { useLeaveGuard } from '../../hooks/useLeaveGuard'
 
 const STEPS = ['강의 선택', '정보 입력', '확인 및 제출']
 
+const KNOWN_ERROR_CODES = Object.values(EnrollmentErrorCode) as string[]
+
 type StepIndex = 1 | 2 | 3
 
 export default function EnrollPage() {
   const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState<StepIndex>(1)
   const [category, setCategory] = useState<CategoryFilter>('all')
+  const [submitError, setSubmitError] = useState<EnrollmentErrorCode | 'UNKNOWN' | null>(null)
 
   const methods = useForm<EnrollFormValues>({
     resolver: zodResolver(enrollSchema),
@@ -64,6 +67,7 @@ export default function EnrollPage() {
   }
 
   const onSubmit: SubmitHandler<EnrollFormValues> = (data) => {
+    setSubmitError(null)
     const enrollData = toEnrollmentRequest(data)
     submitEnroll(enrollData, {
       onSuccess: (res) => {
@@ -87,9 +91,9 @@ export default function EnrollPage() {
         })
       },
       onError: (err) => {
-        const code = err.code as EnrollmentErrorCode
-        const message = ENROLLMENT_ERROR_MESSAGES[code] ?? err.message
-        alert(message)
+        setSubmitError(
+          KNOWN_ERROR_CODES.includes(err.code) ? (err.code as EnrollmentErrorCode) : 'UNKNOWN',
+        )
       },
     })
   }
@@ -132,6 +136,7 @@ export default function EnrollPage() {
                 onEdit={(step) => setCurrentStep(step)}
                 onChangeCourse={() => setCurrentStep(1)}
                 isSubmitting={isPending}
+                submitError={submitError}
               />
             </div>
           )}
