@@ -2,7 +2,7 @@
 import { test, expect } from './fixtures'
 
 test('개인 신청 골든패스: 강의 선택부터 완료 화면까지', async ({ page }) => {
-  await page.goto('/enroll')
+  await page.goto('enroll')
 
   await page.getByRole('radio', { name: /풀스택 웹 개발/ }).click()
   await page.getByRole('radio', { name: '개인 신청' }).check()

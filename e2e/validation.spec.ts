@@ -2,7 +2,7 @@
 import { test, expect } from './fixtures'
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/enroll')
+  await page.goto('enroll')
   await page.getByRole('radio', { name: /풀스택 웹 개발/ }).click()
   await page.getByRole('radio', { name: '개인 신청' }).check()
   await page.getByRole('button', { name: '다음' }).click()
@@ -45,7 +45,7 @@ test('단체 신청 시 참가자 이메일이 중복되면 다음 단계로 진
   // 위 beforeEach가 폼을 dirty 상태로 만들어 draft가 저장되었을 수 있다.
   // /enroll 재진입 시 복원 다이얼로그가 뜨지 않도록 localStorage를 비워둔다.
   await page.evaluate(() => window.localStorage.clear())
-  await page.goto('/enroll')
+  await page.goto('enroll')
   await page.getByRole('radio', { name: /풀스택 웹 개발/ }).click()
   await page.getByRole('radio', { name: '단체 신청' }).check()
   await page.getByRole('button', { name: '다음' }).click()

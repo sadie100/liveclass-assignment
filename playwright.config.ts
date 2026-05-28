@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
 const PORT = 4173
-const baseURL = `http://localhost:${PORT}`
+const baseURL = `http://localhost:${PORT}/liveclass-assignment/`
 
 export default defineConfig({
   testDir: './e2e',

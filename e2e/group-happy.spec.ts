@@ -2,7 +2,7 @@
 import { test, expect } from './fixtures'
 
 test('단체 신청 골든패스: 인원수에 따라 참가자 행이 늘어나고 제출까지 성공', async ({ page }) => {
-  await page.goto('/enroll')
+  await page.goto('enroll')
 
   await page.getByRole('radio', { name: /백엔드 시스템 디자인/ }).click()
   await page.getByRole('radio', { name: '단체 신청' }).check()
