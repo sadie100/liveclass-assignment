@@ -24,20 +24,37 @@
 
 패키지 매니저는 `pnpm`을 사용한다.
 
+### 개발 서버 실행
+
 ```bash
 pnpm install        # 의존성 설치 (최초 1회)
 pnpm dev            # Vite 개발 서버 실행 (기본 http://localhost:5173)
-pnpm build          # 린트 + 타입 체크 + 프로덕션 빌드
-pnpm preview        # 빌드 결과물 미리보기
-pnpm lint           # ESLint 실행
-pnpm format         # Prettier로 전체 파일 포맷팅
 ```
 
 API는 MSW로 모킹되어 있어 별도 백엔드 없이 `pnpm dev`만으로 전체 플로우를 확인할 수 있다. MSW 워커는 `public/mockServiceWorker.js`로 등록되어 있다.
 
+### 프로덕션 빌드 확인
+
+```bash
+pnpm build          # 프로덕션 빌드 (타입 체크 포함)
+pnpm preview        # 빌드 결과물 로컬에서 미리보기 (기본 http://localhost:4173)
+```
+
+### E2E 테스트
+
+Playwright로 작성되어 있으며, production build 결과물을 띄워 검증한다.
+
+```bash
+pnpm exec playwright install chromium   # 최초 1회: 브라우저 바이너리 다운로드
+pnpm test:e2e                           # 전체 E2E 시나리오 실행
+pnpm test:e2e:ui                        # Playwright UI 모드로 디버깅
+```
+
+
 ## 프로젝트 구조 설명
 
 ```
+e2e/                      # Playwright E2E 시나리오 (개인/단체 골든패스·유효성·서버 에러·임시저장)
 src/
 ├── main.tsx              # 앱 엔트리. MSW 워커 시동 후 React 마운트
 ├── App.tsx               # 라우터 / QueryClientProvider 등 최상위 트리
