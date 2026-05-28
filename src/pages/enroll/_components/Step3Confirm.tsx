@@ -9,12 +9,13 @@ import { CourseInfo } from './CourseInfo'
 import type { EnrollFormValues } from '../_schema'
 import { formatPhone } from '@/lib/format'
 import { useCourseSoldOut } from '@/queries/course'
-import { ENROLLMENT_ERROR_MESSAGES, EnrollmentErrorCode } from '@/types/enrollment'
+import { EnrollmentErrorCode } from '@/types/enrollment'
 import type { ErrorResponse } from '@/types/api'
-
-type SubmitErrorReason = EnrollmentErrorCode | 'SOLD_OUT' | 'UNKNOWN'
-
-const KNOWN_ERROR_CODES = Object.values(EnrollmentErrorCode) as string[]
+import {
+  KNOWN_ERROR_CODES,
+  SUBMIT_ERROR_CONTENT,
+  type SubmitErrorReason,
+} from '../_constants/errorMessages'
 
 interface Step3ConfirmProps {
   onPrev: () => void
@@ -177,32 +178,6 @@ export function Step3Confirm({
       </div>
     </div>
   )
-}
-
-const SUBMIT_ERROR_CONTENT: Record<
-  SubmitErrorReason,
-  { title: string; description: string }
-> = {
-  COURSE_FULL: {
-    title: ENROLLMENT_ERROR_MESSAGES.COURSE_FULL,
-    description: '다른 강의를 선택해 다시 신청해 주세요.',
-  },
-  DUPLICATE_ENROLLMENT: {
-    title: ENROLLMENT_ERROR_MESSAGES.DUPLICATE_ENROLLMENT,
-    description: '한 강의는 한 번만 신청할 수 있어요. 다른 강의를 둘러보세요.',
-  },
-  INVALID_INPUT: {
-    title: ENROLLMENT_ERROR_MESSAGES.INVALID_INPUT,
-    description: '입력 정보로 돌아가 값을 확인한 뒤 다시 제출해 주세요.',
-  },
-  SOLD_OUT: {
-    title: '선택한 강의가 마감되었습니다.',
-    description: '신청을 진행할 수 없어요. 다른 강의를 선택해 주세요.',
-  },
-  UNKNOWN: {
-    title: '신청 처리 중 문제가 발생했습니다.',
-    description: '잠시 후 다시 시도해 주세요. 문제가 계속되면 고객센터로 문의해 주세요.',
-  },
 }
 
 function SubmitErrorBanner({

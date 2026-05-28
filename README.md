@@ -47,12 +47,13 @@ src/
         ├── EnrollPage.tsx       # 멀티스텝 신청 폼 (단일 URL, 컴포넌트 상태로 스텝 관리)
         ├── EnrollDonePage.tsx   # 신청 완료 화면
         ├── _components/         # 이 페이지에서만 쓰이는 컴포넌트
-        ├── _hooks/              # 이 페이지 전용 훅
-        └── _schema.ts           # Zod 스키마 (개인/단체 discriminatedUnion)
+        ├── _hooks/               # 이 페이지 전용 훅
+        ├── _constants/           # 이 페이지 전용 상수 (에러 메시지 카피 등)
+        └── _schema.ts            # Zod 스키마 (개인/단체 discriminatedUnion)
 ```
 
 - `@/*` alias가 `src/*`에 매핑되어 있으므로 `src` 경계를 넘는 import는 항상 `@/...` 형태로 작성한다.
-- 페이지 폴더 안의 `_components` / `_hooks` / `_schema`는 해당 페이지 내부에서만 쓰이는 파일을 유형별로 모아둔 것이다. 공용으로 끌어올릴 가치가 생기면 `src/components/`·`src/hooks/`로 이동한다.
+- 페이지 폴더 안의 `_components` / `_hooks` / `_constants` / `_schema`는 해당 페이지 내부에서만 쓰이는 파일을 유형별로 모아둔 것이다. 공용으로 끌어올릴 가치가 생기면 `src/components/`·`src/hooks/`로 이동한다.
 
 ## 요구사항 해석 및 가정
 

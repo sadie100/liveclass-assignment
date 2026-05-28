@@ -9,14 +9,9 @@ export const EnrollmentErrorCode = {
   DuplicateEnrollment: 'DUPLICATE_ENROLLMENT',
   InvalidInput: 'INVALID_INPUT',
 } as const
+
 export type EnrollmentErrorCode =
   (typeof EnrollmentErrorCode)[keyof typeof EnrollmentErrorCode]
-
-export const ENROLLMENT_ERROR_MESSAGES = {
-  [EnrollmentErrorCode.CourseFull]: '선택한 강의의 정원이 초과되었습니다.',
-  [EnrollmentErrorCode.DuplicateEnrollment]: '이미 신청한 강의입니다.',
-  [EnrollmentErrorCode.InvalidInput]: '입력값을 다시 확인해 주세요.',
-} as const satisfies Record<EnrollmentErrorCode, string>
 
 export interface EnrollmentApplicant {
   name: string
