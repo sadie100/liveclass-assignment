@@ -20,20 +20,23 @@
 
 ## 실행 방법
 
-패키지 매니저는 `pnpm`을 사용합니다.
+완성된 페이지는 https://sadie100.github.io/liveclass-assignment 에서 확인하실 수 있습니다.
+(과제 심사 기간 종료 후 내릴 예정입니다.)
 
-### 개발 서버 실행
+로컬에서 실행하시려면 아래 방법 중 하나를 선택하세요. 패키지 매니저로는 `pnpm`을 사용했습니다.
+API는 MSW로 모킹되어 있어 별도 백엔드 빌드 없이 전체 플로우를 확인할 수 있습니다.
+
+### 1. 개발 서버 실행
 
 ```bash
 pnpm install        # 의존성 설치 (최초 1회)
 pnpm dev            # Vite 개발 서버 실행 (기본 http://localhost:5173)
 ```
 
-API는 MSW로 모킹되어 있어 별도 백엔드 없이 `pnpm dev`만으로 전체 플로우를 확인할 수 있습니다.
-
-### 프로덕션 빌드 확인
+### 2. 프로덕션 빌드 확인
 
 ```bash
+pnpm install        # 의존성 설치 (최초 1회)
 pnpm build          # 프로덕션 빌드 (타입 체크 포함)
 pnpm preview        # 빌드 결과물 로컬에서 미리보기 (기본 http://localhost:4173)
 ```
