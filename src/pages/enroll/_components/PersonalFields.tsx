@@ -48,6 +48,8 @@ export function PersonalFields() {
               onChange={field.onChange}
               onBlur={field.onBlur}
               name={field.name}
+              aria-invalid={errors.phone ? true : undefined}
+              aria-describedby={errors.phone ? 'applicant-phone-error' : undefined}
             />
           )}
         />

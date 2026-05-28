@@ -83,6 +83,8 @@ export function GroupFields() {
               onChange={field.onChange}
               onBlur={field.onBlur}
               name={field.name}
+              aria-invalid={errors.contactPerson ? true : undefined}
+              aria-describedby={errors.contactPerson ? 'contact-person-error' : undefined}
             />
           )}
         />
