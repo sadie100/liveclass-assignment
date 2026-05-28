@@ -2,7 +2,6 @@ import { Suspense, useMemo } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { useFormContext, useWatch } from 'react-hook-form'
-
 import { Button } from '@/components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { formatPrice, getCapacityStatus } from '@/lib/format'
@@ -42,7 +41,7 @@ function CourseSection({ category, onNext }: { category: CategoryFilter; onNext:
   const { control, setValue } = useFormContext<EnrollFormValues>()
   const selectedId = useWatch({ control, name: 'courseId' }) ?? ''
   const type = useWatch({ control, name: 'type' })
-  const changeEnrollType = useChangeEnrollType()
+  const { requestChange, confirmSwitchDialog } = useChangeEnrollType()
 
   const { data } = useCoursesQuery(category)
   const courses = data.courses
@@ -91,9 +90,10 @@ function CourseSection({ category, onNext }: { category: CategoryFilter; onNext:
       <SelectionBar
         selectedCourse={selectedCourse}
         type={type}
-        onTypeChange={changeEnrollType}
+        onTypeChange={requestChange}
         onNext={onNext}
       />
+      {confirmSwitchDialog}
     </>
   )
 }

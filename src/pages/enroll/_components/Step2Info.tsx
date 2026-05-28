@@ -21,7 +21,7 @@ export function Step2Info({ onPrev, onNext, onChangeCourse }: Step2InfoProps) {
   const { control } = useFormContext<EnrollFormValues>()
   const courseId = useWatch({ control, name: 'courseId' })
   const type = useWatch({ control, name: 'type' })
-  const changeEnrollType = useChangeEnrollType()
+  const { requestChange, confirmSwitchDialog } = useChangeEnrollType()
   const soldOut = useCourseSoldOut(courseId)
 
   return (
@@ -39,7 +39,7 @@ export function Step2Info({ onPrev, onNext, onChangeCourse }: Step2InfoProps) {
                 <EnrollTypeSwitch
                   value={field.value}
                   onChange={(next) => {
-                    changeEnrollType(next)
+                    requestChange(next)
                     field.onBlur()
                   }}
                 />
@@ -71,6 +71,8 @@ export function Step2Info({ onPrev, onNext, onChangeCourse }: Step2InfoProps) {
           <ArrowRight aria-hidden />
         </Button>
       </div>
+
+      {confirmSwitchDialog}
     </div>
   )
 }
