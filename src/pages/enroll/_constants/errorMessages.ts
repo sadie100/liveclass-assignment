@@ -10,7 +10,7 @@ export const SUBMIT_ERROR_CONTENT: Record<
 > = {
   COURSE_FULL: {
     title: '선택한 강의의 정원이 초과되었습니다.',
-    description: '다른 강의를 선택해 다시 신청해 주세요.',
+    description: '다른 강의를 선택해 다시 신청해 주세요. 단체 신청일 경우 신청 인원이 강의의 정원을 초과할 수 없습니다.',
   },
   DUPLICATE_ENROLLMENT: {
     title: '이미 신청한 강의입니다.',
