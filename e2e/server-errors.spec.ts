@@ -51,18 +51,18 @@ test('COURSE_FULL: 단체 신청 인원이 강의의 잔여 정원을 초과하�
   await page.getByRole('button', { name: '다음' }).click()
 
   await page.locator('#applicant-name').fill('홍길동')
-  await page.locator('#applicant-email').fill(`full-${Date.now()}@example.com`)
+  await page.locator('#applicant-email').fill(`full-mail@example.com`)
   await page.locator('#applicant-phone').fill('01012345678')
   await page.locator('#org-name').fill('라이브클래스')
   await page.locator('#contact-person').fill('01087654321')
   await page.locator('#head-count').fill('3')
 
   await page.locator('#participant-1-name').fill('참가자1')
-  await page.locator('#participant-1-email').fill(`p1-${Date.now()}@example.com`)
+  await page.locator('#participant-1-email').fill(`p1-mail@example.com`)
   await page.locator('#participant-2-name').fill('참가자2')
-  await page.locator('#participant-2-email').fill(`p2-${Date.now()}@example.com`)
+  await page.locator('#participant-2-email').fill(`p2-mail@example.com`)
   await page.locator('#participant-3-name').fill('참가자3')
-  await page.locator('#participant-3-email').fill(`p3-${Date.now()}@example.com`)
+  await page.locator('#participant-3-email').fill(`p3-mail@example.com`)
 
   await page.getByRole('button', { name: '다음' }).click()
   await page.getByRole('checkbox', { name: /이용약관/ }).check()
@@ -71,6 +71,38 @@ test('COURSE_FULL: 단체 신청 인원이 강의의 잔여 정원을 초과하�
   const alert = page.getByRole('alert')
   await expect(alert).toBeVisible()
   await expect(alert).toContainText('선택한 강의의 정원이 초과되었습니다.')
+})
+
+test('INVALID_INPUT: 참가자 이메일이 중복되면 details 메시지와 정보 다시 확인 버튼이 노출된다', async ({
+  page,
+}) => {
+  // 클라이언트 zod는 참가자 이메일 중복을 막지 않아 서버(MSW)가 422 INVALID_INPUT을 내려준다.
+  await page.goto('/enroll')
+  await page.getByRole('radio', { name: /풀스택 웹 개발/ }).click()
+  await page.getByRole('radio', { name: '단체 신청' }).check()
+  await page.getByRole('button', { name: '다음' }).click()
+
+  await page.locator('#applicant-name').fill('홍길동')
+  await page.locator('#applicant-email').fill('invalid@example.com')
+  await page.locator('#applicant-phone').fill('01012345678')
+  await page.locator('#org-name').fill('라이브클래스')
+  await page.locator('#contact-person').fill('01087654321')
+  await page.locator('#head-count').fill('2')
+
+  await page.locator('#participant-1-name').fill('참가자1')
+  await page.locator('#participant-1-email').fill('dup@example.com')
+  await page.locator('#participant-2-name').fill('참가자2')
+  await page.locator('#participant-2-email').fill('dup@example.com')
+
+  await page.getByRole('button', { name: '다음' }).click()
+  await page.getByRole('checkbox', { name: /이용약관/ }).check()
+  await page.getByRole('button', { name: '신청 제출' }).click()
+
+  const alert = page.getByRole('alert')
+  await expect(alert).toBeVisible()
+  await expect(alert).toContainText('입력값을 다시 확인해 주세요.')
+  await expect(alert).toContainText('참가자 이메일이 중복됩니다.')
+  await expect(page.getByRole('button', { name: '정보 다시 확인' })).toBeVisible()
 })
 
 test('중복 제출 방지: 제출 직후 버튼이 비활성화되어 추가 제출이 차단된다', async ({ page }) => {
