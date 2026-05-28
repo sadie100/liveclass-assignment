@@ -100,7 +100,7 @@ function CourseSection({ category, onNext }: { category: CategoryFilter; onNext:
 
 const TYPE_OPTIONS: Array<{ value: EnrollmentType; label: string; description: string }> = [
   { value: 'personal', label: '개인 신청', description: '혼자 신청합니다' },
-  { value: 'group', label: '단체 신청', description: '2~10명을 함께 신청합니다' },
+  { value: 'group', label: '단체 신청', description: '여러 명을 함께 신청합니다' },
 ]
 
 function SelectionBar({

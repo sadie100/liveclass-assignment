@@ -51,7 +51,7 @@ export function GroupFields() {
         id="head-count"
         label="신청 인원수"
         required
-        helper="2~10명까지 신청 가능합니다"
+        helper={`${MIN_PARTICIPANTS}~${MAX_PARTICIPANTS}명까지 신청 가능합니다`}
         error={errors.headCount?.message}
       >
         <Input
