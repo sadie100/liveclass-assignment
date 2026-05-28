@@ -128,9 +128,18 @@ export default function EnrollPage() {
           {currentStep === 3 && (
             <div className="mx-auto max-w-2xl">
               <Step3Confirm
-                onPrev={() => setCurrentStep(2)}
-                onEdit={(step) => setCurrentStep(step)}
-                onChangeCourse={() => setCurrentStep(1)}
+                onPrev={() => {
+                  setSubmitError(null)
+                  setCurrentStep(2)
+                }}
+                onEdit={(step) => {
+                  setSubmitError(null)
+                  setCurrentStep(step)
+                }}
+                onChangeCourse={() => {
+                  setSubmitError(null)
+                  setCurrentStep(1)
+                }}
                 isSubmitting={isPending}
                 submitError={submitError}
               />
