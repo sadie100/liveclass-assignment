@@ -47,7 +47,30 @@ const groupSchema = z.object({
     .max(MAX_PARTICIPANTS),
 })
 
-export const enrollSchema = z.discriminatedUnion('type', [personalSchema, groupSchema])
+export const enrollSchema = z
+  .discriminatedUnion('type', [personalSchema, groupSchema])
+  .superRefine((data, ctx) => {
+    if (data.type !== 'group') return
+    const seen = new Map<string, number[]>()
+    data.participants.forEach((p, i) => {
+      const email = p.email?.trim().toLowerCase()
+      if (!email) return
+
+      const list = seen.get(email) ?? []
+      list.push(i)
+      seen.set(email, list)
+    })
+    for (const indexes of seen.values()) {
+      if (indexes.length < 2) continue
+      for (const i of indexes) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['participants', i, 'email'],
+          message: '참가자 이메일이 중복됩니다',
+        })
+      }
+    }
+  })
 
 export type EnrollFormValues = z.infer<typeof enrollSchema>
 export type GroupFormValues = z.infer<typeof groupSchema>
