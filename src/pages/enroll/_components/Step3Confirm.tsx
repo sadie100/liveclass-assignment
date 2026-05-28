@@ -9,16 +9,19 @@ import { CourseInfo } from './CourseInfo'
 import type { EnrollFormValues } from '../_schema'
 import { formatPhone } from '@/lib/format'
 import { useCourseSoldOut } from '@/queries/course'
-import { ENROLLMENT_ERROR_MESSAGES, type EnrollmentErrorCode } from '@/types/enrollment'
+import { ENROLLMENT_ERROR_MESSAGES, EnrollmentErrorCode } from '@/types/enrollment'
+import type { ErrorResponse } from '@/types/api'
 
 type SubmitErrorReason = EnrollmentErrorCode | 'SOLD_OUT' | 'UNKNOWN'
+
+const KNOWN_ERROR_CODES = Object.values(EnrollmentErrorCode) as string[]
 
 interface Step3ConfirmProps {
   onPrev: () => void
   onEdit: (step: 1 | 2) => void
   onChangeCourse: () => void
   isSubmitting: boolean
-  submitError: EnrollmentErrorCode | 'UNKNOWN' | null
+  submitError: ErrorResponse | null
 }
 
 export function Step3Confirm({
@@ -149,7 +152,16 @@ export function Step3Confirm({
       </Card>
 
       <SubmitErrorBanner
-        reason={submitError ?? (soldOut ? 'SOLD_OUT' : null)}
+        reason={
+          submitError
+            ? KNOWN_ERROR_CODES.includes(submitError.code)
+              ? (submitError.code as EnrollmentErrorCode)
+              : 'UNKNOWN'
+            : soldOut
+              ? 'SOLD_OUT'
+              : null
+        }
+        details={submitError?.details}
         onChangeCourse={onChangeCourse}
         onEdit={onEdit}
       />
@@ -195,10 +207,12 @@ const SUBMIT_ERROR_CONTENT: Record<
 
 function SubmitErrorBanner({
   reason,
+  details,
   onChangeCourse,
   onEdit,
 }: {
   reason: SubmitErrorReason | null
+  details?: Record<string, string>
   onChangeCourse: () => void
   onEdit: (step: 1 | 2) => void
 }) {
@@ -213,6 +227,8 @@ function SubmitErrorBanner({
   if (!reason) return null
 
   const { title, description } = SUBMIT_ERROR_CONTENT[reason]
+  const detailMessages =
+    reason === 'INVALID_INPUT' && details ? Object.values(details) : []
 
   return (
     <div
@@ -224,7 +240,15 @@ function SubmitErrorBanner({
       <AlertCircle aria-hidden className="text-destructive mt-0.5 size-5 shrink-0" />
       <div className="min-w-0 flex-1 space-y-1">
         <p className="text-destructive text-sm font-semibold">{title}</p>
-        <p className="text-foreground/80 text-xs leading-relaxed">{description}</p>
+        {detailMessages.length > 0 ? (
+          <ul className="text-foreground/80 list-disc space-y-0.5 pl-4 text-xs leading-relaxed">
+            {detailMessages.map((msg, i) => (
+              <li key={i}>{msg}</li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-foreground/80 text-xs leading-relaxed">{description}</p>
+        )}
         <div className="pt-2">
           {reason === 'INVALID_INPUT' ? (
             <Button
